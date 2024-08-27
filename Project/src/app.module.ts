@@ -4,6 +4,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { PostsModule } from "./posts/posts.module";
+import { PostsModel } from "./posts/entities/posts.entity";
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { PostsModule } from "./posts/posts.module";
         username: configService.get("POSTGRES_USER"),
         password: configService.get("POSTGRES_PASSWORD"),
         database: configService.get("POSTGRES_DB"),
-        entities: [],
+        entities: [PostsModel],
         synchronize: true,
       }),
     }),
