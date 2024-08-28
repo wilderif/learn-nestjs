@@ -3,6 +3,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { UserModel } from "./entity/user.entity";
 
 @Module({
   imports: [
@@ -19,10 +20,11 @@ import { TypeOrmModule } from "@nestjs/typeorm";
         username: configService.get("POSTGRES_USER"),
         password: configService.get("POSTGRES_PASSWORD"),
         database: configService.get("POSTGRES_DB"),
-        entities: [],
+        entities: [UserModel],
         synchronize: true,
       }),
     }),
+    TypeOrmModule.forFeature([UserModel]),
   ],
   controllers: [AppController],
   providers: [AppService],
