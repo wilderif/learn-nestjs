@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Post, Patch } from "@nestjs/common";
 import { AppService } from "./app.service";
 import { InjectRepository } from "@nestjs/typeorm";
-import { UserModel } from "./entity/user.entity";
+import { Role, UserModel } from "./entity/user.entity";
 import { MoreThanOrEqual, Repository } from "typeorm";
 
 @Controller()
@@ -15,8 +15,8 @@ export class AppController {
   getUsers() {
     return this.userRepository.find({
       select: {
-        id: true,
-        title: true,
+        // id: true,
+        // title: true,
       },
     });
   }
@@ -25,6 +25,7 @@ export class AppController {
   postUser() {
     return this.userRepository.save({
       // title: "test title"
+      // role: Role.ADMIN,
     });
   }
 

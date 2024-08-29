@@ -9,6 +9,11 @@ import {
   VersionColumn,
 } from "typeorm";
 
+export enum Role {
+  USER = "user",
+  ADMIN = "admin",
+}
+
 @Entity()
 export class UserModel {
   // @PrimaryGeneratedColumn()
@@ -27,6 +32,13 @@ export class UserModel {
     unique: false,
   })
   title: string;
+
+  @Column({
+    type: "enum",
+    enum: Role,
+    default: Role.USER,
+  })
+  role: Role;
 
   @CreateDateColumn()
   createdAt: Date;
