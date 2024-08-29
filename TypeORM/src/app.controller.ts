@@ -2,7 +2,7 @@ import { Controller, Get, Param, Post, Patch } from "@nestjs/common";
 import { AppService } from "./app.service";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserModel } from "./entity/user.entity";
-import { Repository } from "typeorm";
+import { MoreThanOrEqual, Repository } from "typeorm";
 
 @Controller()
 export class AppController {
@@ -13,12 +13,19 @@ export class AppController {
 
   @Get("users")
   getUsers() {
-    return this.userRepository.find();
+    return this.userRepository.find({
+      select: {
+        id: true,
+        title: true,
+      },
+    });
   }
 
   @Post("users")
   postUser() {
-    return this.userRepository.save({ title: "test title" });
+    return this.userRepository.save({
+      // title: "test title"
+    });
   }
 
   @Patch("users/:id")

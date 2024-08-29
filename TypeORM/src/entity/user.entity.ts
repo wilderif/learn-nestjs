@@ -16,7 +16,16 @@ export class UserModel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: "varchar",
+    name: "_title",
+    length: 300,
+    nullable: true,
+    update: false,
+    select: false,
+    default: "defalut title",
+    unique: false,
+  })
   title: string;
 
   @CreateDateColumn()
