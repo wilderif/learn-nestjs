@@ -3,11 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   Generated,
+  OneToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   VersionColumn,
 } from "typeorm";
+import { ProfileModel } from "./profile.entity";
+import { CONFIGURABLE_MODULE_ID } from "@nestjs/common/module-utils/constants";
 
 export enum Role {
   USER = "user",
@@ -21,17 +24,20 @@ export class UserModel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
-    type: "varchar",
-    name: "_title",
-    length: 300,
-    nullable: true,
-    update: false,
-    select: false,
-    default: "defalut title",
-    unique: false,
-  })
-  title: string;
+  @Column()
+  email: string;
+
+  // @Column({
+  //   type: "varchar",
+  //   name: "_title",
+  //   length: 300,
+  //   nullable: true,
+  //   update: false,
+  //   select: false,
+  //   default: "defalut title",
+  //   unique: false,
+  // })
+  // title: string;
 
   @Column({
     type: "enum",
@@ -53,4 +59,7 @@ export class UserModel {
   // @Generated("increment")
   @Generated("uuid")
   additionalId: string;
+
+  @OneToOne(() => ProfileModel, (profile) => profile.user)
+  profile: ProfileModel;
 }
