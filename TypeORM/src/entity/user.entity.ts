@@ -61,9 +61,22 @@ export class UserModel {
   @Generated("uuid")
   additionalId: string;
 
-  @OneToOne(() => ProfileModel, (profile) => profile.user)
+  @OneToOne(() => ProfileModel, (profile) => profile.user, {
+    // find() 실행 할 때, 항상 같이 가져올 relation
+    eager: true,
+
+    // 저장할 때, relation을 한 번에 같이 저장 가능
+    cascade: false,
+
+    nullable: true,
+
+    onDelete: "SET NULL",
+  })
   profile: ProfileModel;
 
   @OneToMany(() => PostModel, (post) => post.author)
   posts: PostModel[];
+
+  @Column({ default: 0 })
+  count: number;
 }
