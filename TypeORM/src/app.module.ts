@@ -14,6 +14,7 @@ import {
 } from "./entity/inheritance.entity";
 import { ProfileModel } from "./entity/profile.entity";
 import { PostModel } from "./entity/post.entity";
+import { TagModel } from "./entity/tag.entity";
 
 @Module({
   imports: [
@@ -41,11 +42,12 @@ import { PostModel } from "./entity/post.entity";
           AirplaneModel,
           ProfileModel,
           PostModel,
+          TagModel,
         ],
         synchronize: true,
       }),
     }),
-    TypeOrmModule.forFeature([UserModel, ProfileModel, PostModel]),
+    TypeOrmModule.forFeature([UserModel, ProfileModel, PostModel, TagModel]),
   ],
   controllers: [AppController],
   providers: [AppService],
