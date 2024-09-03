@@ -5,6 +5,8 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { PostsModule } from "./posts/posts.module";
 import { PostsModel } from "./posts/entities/posts.entity";
+import { UsersModule } from "./users/users.module";
+import { UsersModel } from "./users/entities/users.entity";
 
 @Module({
   imports: [
@@ -21,11 +23,12 @@ import { PostsModel } from "./posts/entities/posts.entity";
         username: configService.get("POSTGRES_USER"),
         password: configService.get("POSTGRES_PASSWORD"),
         database: configService.get("POSTGRES_DB"),
-        entities: [PostsModel],
+        entities: [PostsModel, UsersModel],
         synchronize: true,
       }),
     }),
     PostsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
