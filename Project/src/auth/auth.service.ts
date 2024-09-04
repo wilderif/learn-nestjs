@@ -7,6 +7,56 @@ import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AuthService {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
+  ) {}
+
+  /**
+   * 토큰을 사용하는 방식
+   *
+   * 1) 사용자가 로기인 또는 회원가입을 진행하면
+   *    accessToken과 refreshToken을 발급받는다.
+   * 2) 로그인 할 때는 Basic 토큰과 함꼐 요청을 보낸다.
+   *    Basic 토큰은 "email:password"를 base64로 인코딩한 형태이다.
+   *    ex) {authorization: 'Basic {token}'}
+   * 3) 아무나 접근할 수 없는 정보 {private route}에 접근할 때는
+   *    accessToken을 헤더에 추가해서 요청과 함께 보낸다.
+   *    ex) {authorization: 'Bearer {accessToken}'}
+   * 4) 토큰과 요청을 함께 받은 서버는 토큰 검증을 통해
+   *    현재 요청을 보낸 사용자가 누구인지 알 수 있다.
+   *    ex) 현재 로그인한 사용자가 작성한 포스트만 가져오려면
+   *        토큰의 sub 값에 입력되어있는 사용자의 포스트만 따로 필터링할 수 있다.
+   *        특정 사용자의 토큰이 없다면 다른 사용자의 데이터를 접근할 수 없다.
+   * 5) 모든 토큰은 만료 기간이 있다. 만료 기간이 지나면 새로 토큰을 발급 받아야 한다.
+   *    그렇지 않으면 jwtService.verify()에서 인증이 실패한다.
+   *    그러니
+   *    access 토큰을 새로 발급 받을 수 있는 /auth/token/access
+   *    refresh 토큰을 새로 발급 받을 수 있는 /auth/token/refresh
+   *    가 필요하다.
+   * 6) 토큰이 만료되면 각각의 토큰을 새로 발급 받을 수 있는 endpoint에 요청을 해서,
+   *    새로운 토큰을 발급 받고, 새로운 토큰을 사용하여 private route에 접근한다.
+   */
+
+  /**
+   * Header로 부터 토큰을 받을 때,
+   * {authorization: 'Basic {token}'}
+   * {authorization: 'Bearer {accessToken}'}
+   */
+
+  async extractTokenFromHeader(header: string, isBearer: boolean) {
+    const prefix = isBearer ? "Bearer" : "Basic";
+    const splitToken = header.split(" ");
+
+    if (splitToken.length !== 2 || splitToken[0] !== prefix) {
+      throw new UnauthorizedException("Invalid token");
+    }
+
+    const token = splitToken[1];
+
+    return token;
+  }
+
   /**
    * 1) registerWithEmail
    *    - email, nickname, password를 입력받고 사용자를 생성한다.
@@ -30,11 +80,6 @@ export class AuthService {
    *      3. 사용자가 존재하고 비밀번호가 일치하면 사용자 정보를 반환
    *     (4. 반환된 데이터를 기반으로 loginWithEmail에서 토큰 생성)
    */
-
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly usersService: UsersService,
-  ) {}
 
   /**
    * Payload에 들어갈 정보
