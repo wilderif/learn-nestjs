@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   ParseIntPipe,
+  DefaultValuePipe,
 } from "@nestjs/common";
 import { PostsService } from "./posts.service";
 
@@ -35,6 +36,7 @@ export class PostsController {
     @Body("authorId") authorId: number,
     @Body("title") title: string,
     @Body("content") content: string,
+    // @Body("isPublic", new DefaultValuePipe(true)) isPublick: boolean,
   ) {
     return this.postsService.createPost(authorId, title, content);
   }
