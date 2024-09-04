@@ -43,7 +43,6 @@ export class PostsController {
   @Put(":id")
   putPost(
     @Param("id") id: string,
-    @Body("author") author?: string,
     @Body("title") title?: string,
     @Body("content") content?: string,
   ) {
