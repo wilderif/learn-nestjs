@@ -4,6 +4,7 @@ import { UsersModel } from "src/users/entities/users.entity";
 import { HASH_ROUNDS, JWT_SECRET } from "./const/auth.const";
 import { UsersService } from "src/users/users.service";
 import * as bcrypt from "bcrypt";
+import e from "express";
 
 @Injectable()
 export class AuthService {
@@ -43,8 +44,7 @@ export class AuthService {
    * {authorization: 'Basic {token}'}
    * {authorization: 'Bearer {accessToken}'}
    */
-
-  async extractTokenFromHeader(header: string, isBearer: boolean) {
+  extractTokenFromHeader(header: string, isBearer: boolean) {
     const prefix = isBearer ? "Bearer" : "Basic";
     const splitToken = header.split(" ");
 
@@ -55,6 +55,19 @@ export class AuthService {
     const token = splitToken[1];
 
     return token;
+  }
+
+  decodeBasicToken(base64String: string) {
+    const decoded = Buffer.from(base64String, "base64").toString("utf-8");
+    const split = decoded.split(":");
+
+    if (split.length !== 2) {
+      throw new UnauthorizedException("Invalid token");
+    }
+
+    const [email, password] = split;
+
+    return { email, password };
   }
 
   /**
