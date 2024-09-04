@@ -6,6 +6,7 @@ import {
   Post,
   Put,
   Delete,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { PostsService } from "./posts.service";
 
@@ -23,8 +24,8 @@ export class PostsController {
   // 2) GET /posts/:id
   //    id에 해당되는 post를 가져온다.
   @Get(":id")
-  getPost(@Param("id") id: string) {
-    return this.postsService.getPostById(+id);
+  getPost(@Param("id", ParseIntPipe) id: number) {
+    return this.postsService.getPostById(id);
   }
 
   // 3) POST /posts
@@ -42,17 +43,17 @@ export class PostsController {
   //    id에 해당되는 post를 변경한다.
   @Put(":id")
   putPost(
-    @Param("id") id: string,
+    @Param("id", ParseIntPipe) id: number,
     @Body("title") title?: string,
     @Body("content") content?: string,
   ) {
-    return this.postsService.updatePost(+id, title, content);
+    return this.postsService.updatePost(id, title, content);
   }
 
   // 5) DELETE /posts/:id
   //    id에 해당되는 post를 삭제한다.
   @Delete(":id")
-  deletePost(@Param("id") id: string) {
-    return this.postsService.deletePost(+id);
+  deletePost(@Param("id", ParseIntPipe) id: number) {
+    return this.postsService.deletePost(id);
   }
 }
