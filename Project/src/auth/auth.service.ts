@@ -16,14 +16,14 @@ export class AuthService {
   /**
    * 토큰을 사용하는 방식
    *
-   * 1) 사용자가 로기인 또는 회원가입을 진행하면
+   * 1) 사용자가 로그인 또는 회원가입을 진행하면
    *    accessToken과 refreshToken을 발급받는다.
    * 2) 로그인 할 때는 Basic 토큰과 함꼐 요청을 보낸다.
    *    Basic 토큰은 "email:password"를 base64로 인코딩한 형태이다.
    *    ex) {authorization: 'Basic {token}'}
    * 3) 아무나 접근할 수 없는 정보 {private route}에 접근할 때는
    *    accessToken을 헤더에 추가해서 요청과 함께 보낸다.
-   *    ex) {authorization: 'Bearer {accessToken}'}
+   *    ex) {authorization: 'Bearer {token}'}
    * 4) 토큰과 요청을 함께 받은 서버는 토큰 검증을 통해
    *    현재 요청을 보낸 사용자가 누구인지 알 수 있다.
    *    ex) 현재 로그인한 사용자가 작성한 포스트만 가져오려면
@@ -42,7 +42,7 @@ export class AuthService {
   /**
    * Header로 부터 토큰을 받을 때,
    * {authorization: 'Basic {token}'}
-   * {authorization: 'Bearer {accessToken}'}
+   * {authorization: 'Bearer {token}'}
    */
   extractTokenFromHeader(header: string, isBearer: boolean) {
     const prefix = isBearer ? "Bearer" : "Basic";
@@ -68,6 +68,25 @@ export class AuthService {
     const [email, password] = split;
 
     return { email, password };
+  }
+
+  verifyToken(token: string) {
+    return this.jwtService.verify(token, {
+      secret: JWT_SECRET,
+    });
+  }
+
+  rotateToken(token: string, isRefreshToken: boolean) {
+    const decoded = this.jwtService.verify(token, {
+      secret: JWT_SECRET,
+    });
+
+    // access token으로는 새로운 token 발급 받을 수 없다.
+    if (decoded.type !== "refresh") {
+      throw new UnauthorizedException("Refresh token required");
+    }
+
+    return this.signToken({ ...decoded }, isRefreshToken);
   }
 
   /**

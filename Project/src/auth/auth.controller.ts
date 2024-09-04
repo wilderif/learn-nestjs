@@ -5,8 +5,28 @@ import { AuthService } from "./auth.service";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post("token/access")
+  postTokenAccess(@Headers("authorization") rawToken: string) {
+    const token = this.authService.extractTokenFromHeader(rawToken, true);
+    const newToken = this.authService.rotateToken(token, false);
+
+    // {accessToken: {token}}
+    return { accessToken: newToken };
+  }
+
+  @Post("token/refresh")
+  postTokenRefresh(@Headers("authorization") rawToken: string) {
+    const token = this.authService.extractTokenFromHeader(rawToken, true);
+    const newToken = this.authService.rotateToken(token, true);
+
+    // {accessToken: {token}}
+    return { refreshToken: newToken };
+  }
+
   @Post("login/email")
-  loginEmail(@Headers("authorization") rawToken: string) {
+  postLoginEmail(@Headers("authorization") rawToken: string) {
+    // login할 때는 basic token을 사용한다. -> false
+    // 이외의 경우에는 bearer token을 사용한다. -> true
     const token = this.authService.extractTokenFromHeader(rawToken, false);
 
     const credentials = this.authService.decodeBasicToken(token);
@@ -15,7 +35,7 @@ export class AuthController {
   }
 
   @Post("register/email")
-  registerEmail(
+  postRegisterEmail(
     @Body("nickname") nickname: string,
     @Body("email") email: string,
     @Body("password") password: string,
