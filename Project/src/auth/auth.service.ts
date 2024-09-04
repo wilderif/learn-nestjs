@@ -100,7 +100,7 @@ export class AuthService {
    *    - 검증이 완료되면 accessToken과 refreshToken을 반환한다.
    *
    * 3) loginUser
-   *     - (1)과 (2)에서 필요한 accessToken과 refreshToken을 반환하는 로직.
+   *    - (1)과 (2)에서 필요한 accessToken과 refreshToken을 반환하는 로직.
    *
    * 4) singnToken
    *    - (3)에서 필요한 accessToken과 refreshToken을 sign하는 로직.
@@ -128,6 +128,7 @@ export class AuthService {
 
     return this.jwtService.sign(payload, {
       secret: JWT_SECRET,
+      // access token은 5분, refresh token은 1시간
       expiresIn: isRefreshToken ? 3600 : 300,
     });
   }
@@ -152,6 +153,7 @@ export class AuthService {
      * bcrypt.compare parameter
      * 1) plainText : 사용자가 입력한 비밀번호
      * 2) hash : DB에 저장된 비밀번호
+     * salt값은 bcrypt가 자동으로 처리?
      */
     const passOK = await bcrypt.compare(user.password, existingUser.password);
 
