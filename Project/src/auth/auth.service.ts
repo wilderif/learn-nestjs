@@ -4,7 +4,6 @@ import { UsersModel } from "src/users/entities/users.entity";
 import { HASH_ROUNDS, JWT_SECRET } from "./const/auth.const";
 import { UsersService } from "src/users/users.service";
 import * as bcrypt from "bcrypt";
-import e from "express";
 
 @Injectable()
 export class AuthService {
