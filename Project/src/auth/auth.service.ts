@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
+import { JwtService, TokenExpiredError } from "@nestjs/jwt";
 import { UsersModel } from "src/users/entities/users.entity";
 import { HASH_ROUNDS, JWT_SECRET } from "./const/auth.const";
 import { UsersService } from "src/users/users.service";
@@ -70,9 +70,17 @@ export class AuthService {
   }
 
   verifyToken(token: string) {
-    return this.jwtService.verify(token, {
-      secret: JWT_SECRET,
-    });
+    try {
+      return this.jwtService.verify(token, {
+        secret: JWT_SECRET,
+      });
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException("Token expired");
+      } else {
+        throw new UnauthorizedException("Invalid token");
+      }
+    }
   }
 
   rotateToken(token: string, isRefreshToken: boolean) {
@@ -127,8 +135,8 @@ export class AuthService {
 
     return this.jwtService.sign(payload, {
       secret: JWT_SECRET,
-      // access token은 5분, refresh token은 1시간
-      expiresIn: isRefreshToken ? 3600 : 300,
+      // access token은 10분, refresh token은 1시간
+      expiresIn: isRefreshToken ? 3600 : 600,
     });
   }
 
