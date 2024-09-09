@@ -10,22 +10,14 @@ export class UsersModel extends BaseModel {
     length: 20,
     unique: true,
   })
-  @IsString()
-  @Length(1, 20)
   nickname: string;
 
   @Column({
     unique: true,
   })
-  @IsString()
-  @IsEmail()
   email: string;
 
   @Column()
-  @IsString()
-  @Length(8, 20, {
-    message: "Password must be 8 ~ 20 characters",
-  })
   password: string;
 
   @Column({

@@ -11,15 +11,9 @@ export class PostsModel extends BaseModel {
   author: UsersModel;
 
   @Column()
-  @IsString({
-    message: "Custom: Title must be a string",
-  })
   title: string;
 
   @Column()
-  @IsString({
-    message: "Custom: Content must be a string",
-  })
   content: string;
 
   @Column()
