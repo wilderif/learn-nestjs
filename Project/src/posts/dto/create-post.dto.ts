@@ -1,6 +1,6 @@
 import { PickType } from "@nestjs/mapped-types";
 import { PostsModel } from "../entities/posts.entity";
-import { IsString, Length } from "class-validator";
+import { IsString } from "class-validator";
 import { stringValidationMessage } from "src/common/validation-mesage/string-validation.message";
 
 // DTO - Data Transfer Object

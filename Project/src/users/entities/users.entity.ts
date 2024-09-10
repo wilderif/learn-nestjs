@@ -3,6 +3,7 @@ import { RolesEnum } from "../const/roles.const";
 import { PostsModel } from "src/posts/entities/posts.entity";
 import { BaseModel } from "src/common/entity/base.entity";
 import { IsEmail, IsString, Length } from "class-validator";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class UsersModel extends BaseModel {
@@ -18,6 +19,7 @@ export class UsersModel extends BaseModel {
   email: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @Column({

@@ -1,10 +1,6 @@
 import { PickType } from "@nestjs/mapped-types";
-import {
-  IsEmail,
-  IsString,
-  Length,
-  ValidationArguments,
-} from "class-validator";
+import { Exclude } from "class-transformer";
+import { IsEmail, IsString, Length } from "class-validator";
 import { emailValidationMessage } from "src/common/validation-mesage/email-validation.message";
 import { lengthValidationMessage } from "src/common/validation-mesage/length-validation.message";
 import { stringValidationMessage } from "src/common/validation-mesage/string-validation.message";
@@ -37,5 +33,6 @@ export class RegisterUserDto extends PickType(UsersModel, [
   @Length(8, 20, {
     message: lengthValidationMessage,
   })
+  // @Exclude()
   password: string;
 }
