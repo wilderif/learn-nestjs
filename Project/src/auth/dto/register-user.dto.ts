@@ -33,6 +33,8 @@ export class RegisterUserDto extends PickType(UsersModel, [
   @Length(8, 20, {
     message: lengthValidationMessage,
   })
-  // @Exclude()
+  @Exclude({
+    toPlainOnly: true,
+  })
   password: string;
 }

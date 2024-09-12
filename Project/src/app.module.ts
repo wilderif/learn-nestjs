@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { ClassSerializerInterceptor, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AppController } from "./app.controller";
@@ -7,8 +7,9 @@ import { PostsModule } from "./posts/posts.module";
 import { PostsModel } from "./posts/entities/posts.entity";
 import { UsersModule } from "./users/users.module";
 import { UsersModel } from "./users/entities/users.entity";
-import { AuthModule } from './auth/auth.module';
-import { CommonModule } from './common/common.module';
+import { AuthModule } from "./auth/auth.module";
+import { CommonModule } from "./common/common.module";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 
 @Module({
   imports: [
@@ -35,6 +36,9 @@ import { CommonModule } from './common/common.module';
     CommonModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
+  ],
 })
 export class AppModule {}
