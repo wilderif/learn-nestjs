@@ -137,7 +137,7 @@ export class AuthService {
     return this.jwtService.sign(payload, {
       secret: JWT_SECRET,
       // access token은 10분, refresh token은 1시간
-      expiresIn: isRefreshToken ? 3600 : 600,
+      expiresIn: isRefreshToken ? 7200 : 3600,
     });
   }
 

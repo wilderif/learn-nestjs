@@ -19,6 +19,15 @@ export class PostsService {
     });
   }
 
+  async generateDummyPosts(userId: number) {
+    for (let i = 0; i < 100; i++) {
+      await this.createPost(userId, {
+        title: `dummy post ${i}`,
+        content: `dummy content ${i}`,
+      });
+    }
+  }
+
   async paginatePosts(paginatePostDto: PaginatePostDto) {
     const posts = await this.postsRepository.find({
       where: {

@@ -22,10 +22,19 @@ import { User } from "src/users/decorator/user.decorator";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { PaginatePostDto } from "./dto/paginate-post.dto";
+import { UsersModel } from "src/users/entities/users.entity";
 
 @Controller("posts")
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
+
+  // POST /posts/dummy
+  @Post("dummy")
+  @UseGuards(AccessTokenGuard)
+  async postPostsDummy(@User("id") userId: number) {
+    await this.postsService.generateDummyPosts(userId);
+    return true;
+  }
 
   // 1) GET /posts
   //    모든 post를 다 가져온다.
