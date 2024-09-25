@@ -1,8 +1,12 @@
+import { Type } from "class-transformer";
 import { IsIn, IsNumber, IsOptional } from "class-validator";
 
 export class PaginatePostDto {
   // 이전 마지막 데이터의 ID
   // 이 property에 입력된 ID보다 큰 ID를 가진 데이터를 가져오기
+  // transformOptions: { enableImplicitConversion: true }를 통하여
+  // 변환 과정을 거치지 않고 숫자로 변환
+  // @Type(() => Number)
   @IsNumber()
   @IsOptional()
   where__id_more_than?: number;
