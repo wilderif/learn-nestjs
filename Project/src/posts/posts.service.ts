@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { MoreThan, Repository } from "typeorm";
+import { FindOptionsWhere, LessThan, MoreThan, Repository } from "typeorm";
 import { PostsModel } from "./entities/posts.entity";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
@@ -40,10 +40,26 @@ export class PostsService {
    * next: 다음 요청을 할 때 사용할 URL
    */
   async paginatePosts(paginatePostDto: PaginatePostDto) {
+    const where: FindOptionsWhere<PostsModel> = {};
+
+    if (paginatePostDto.where__id_less_than) {
+      /**
+       * {
+       *  id: LessThan(paginatePostDto.where__id_less_than),
+       * }
+       */
+      where.id = LessThan(paginatePostDto.where__id_less_than);
+    } else if (paginatePostDto.where__id_more_than) {
+      /**
+       * {
+       *  id: MoreThan(paginatePostDto.where__id_more_than),
+       * }
+       */
+      where.id = MoreThan(paginatePostDto.where__id_more_than);
+    }
+
     const posts = await this.postsRepository.find({
-      where: {
-        id: MoreThan(paginatePostDto.where__id_more_than ?? 0),
-      },
+      where,
       order: {
         createAt: paginatePostDto.order__createdAt,
       },
@@ -52,7 +68,10 @@ export class PostsService {
 
     // 해당되는 포스트가 0개 이상이면 마지막 포스트를 가져오고
     // 아니면 null을 반환
-    const lastItem = posts.length > 0 ? posts[posts.length - 1] : null;
+    const lastItem =
+      posts.length > 0 && posts.length === paginatePostDto.take
+        ? posts[posts.length - 1]
+        : null;
 
     const nextUrl = lastItem && new URL(`${PROTOCOL}://${HOST}/posts`);
 
@@ -64,25 +83,29 @@ export class PostsService {
     if (nextUrl) {
       for (const key of Object.keys(paginatePostDto)) {
         if (paginatePostDto[key]) {
-          if (key !== "where__id_more_than") {
+          if (key !== "where__id_more_than" && key !== "where__id_less_than") {
             nextUrl.searchParams.append(key, paginatePostDto[key]);
           }
         }
       }
 
-      nextUrl.searchParams.append(
-        "where__id_more_than",
-        lastItem.id.toString(),
-      );
+      let key = null;
+
+      if (paginatePostDto.order__createdAt === "ASC") {
+        key = "where__id_more_than";
+      } else {
+        key = "where__id_less_than";
+      }
+      nextUrl.searchParams.append(key, lastItem.id.toString());
     }
 
     return {
       data: posts,
       cursor: {
-        after: lastItem?.id,
+        after: lastItem?.id ?? null,
       },
       count: posts.length,
-      next: nextUrl?.toString(),
+      next: nextUrl?.toString() ?? null,
     };
   }
 
