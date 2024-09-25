@@ -37,7 +37,26 @@ export class PostsService {
     }
   }
 
-  async pagePaginatePosts(paginatePostDto: PaginatePostDto) {}
+  /**
+   * Response
+   *
+   * data: Data[],
+   * total: 전체 데이터의 개수,
+   */
+  async pagePaginatePosts(paginatePostDto: PaginatePostDto) {
+    const [posts, count] = await this.postsRepository.findAndCount({
+      order: {
+        createAt: paginatePostDto.order__createdAt,
+      },
+      take: paginatePostDto.take,
+      skip: paginatePostDto.take * (paginatePostDto.page - 1),
+    });
+
+    return {
+      data: posts,
+      total: count,
+    };
+  }
 
   /**
    * Response

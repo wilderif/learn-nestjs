@@ -40,7 +40,7 @@ export class PostsController {
   @Get()
   // @UseInterceptors(ClassSerializerInterceptor)
   getPosts(@Query() query: PaginatePostDto) {
-    return this.postsService.cursorPaginatePosts(query);
+    return this.postsService.paginatePosts(query);
   }
 
   // 2) GET /posts/:id
