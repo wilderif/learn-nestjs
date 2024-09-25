@@ -18,6 +18,8 @@ export class PostsService {
     });
   }
 
+  paginatePosts() {}
+
   async getPostById(postId: number) {
     const post = await this.postsRepository.findOne({
       where: {

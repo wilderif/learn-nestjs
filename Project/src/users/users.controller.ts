@@ -13,7 +13,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseInterceptors(ClassSerializerInterceptor)
+  // @UseInterceptors(ClassSerializerInterceptor)
   /**
    * serialize(직렬화)
    * - 현재 시스템(NestJS)에서 사용되는 데이터의 구조를
