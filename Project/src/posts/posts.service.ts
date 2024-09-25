@@ -29,6 +29,16 @@ export class PostsService {
     }
   }
 
+  async paginatePosts(paginatePostDto: PaginatePostDto) {
+    if (paginatePostDto.page) {
+      return this.pagePaginatePosts(paginatePostDto);
+    } else {
+      return this.cursorPaginatePosts(paginatePostDto);
+    }
+  }
+
+  async pagePaginatePosts(paginatePostDto: PaginatePostDto) {}
+
   /**
    * Response
    *
@@ -39,7 +49,7 @@ export class PostsService {
    * count: 응답한 data의 개수,
    * next: 다음 요청을 할 때 사용할 URL
    */
-  async paginatePosts(paginatePostDto: PaginatePostDto) {
+  async cursorPaginatePosts(paginatePostDto: PaginatePostDto) {
     const where: FindOptionsWhere<PostsModel> = {};
 
     if (paginatePostDto.where__id_less_than) {

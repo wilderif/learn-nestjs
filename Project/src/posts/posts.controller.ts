@@ -17,7 +17,6 @@ import {
 } from "@nestjs/common";
 import { PostsService } from "./posts.service";
 import { AccessTokenGuard } from "src/auth/guard/bearer-token.guard";
-// import { UsersModel } from "src/users/entities/users.entity";
 import { User } from "src/users/decorator/user.decorator";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
@@ -41,7 +40,7 @@ export class PostsController {
   @Get()
   // @UseInterceptors(ClassSerializerInterceptor)
   getPosts(@Query() query: PaginatePostDto) {
-    return this.postsService.paginatePosts(query);
+    return this.postsService.cursorPaginatePosts(query);
   }
 
   // 2) GET /posts/:id
