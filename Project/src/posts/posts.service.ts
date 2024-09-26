@@ -71,20 +71,20 @@ export class PostsService {
   async cursorPaginatePosts(paginatePostDto: PaginatePostDto) {
     const where: FindOptionsWhere<PostsModel> = {};
 
-    if (paginatePostDto.where__id_less_than) {
+    if (paginatePostDto.where__id__less_than) {
       /**
        * {
        *  id: LessThan(paginatePostDto.where__id_less_than),
        * }
        */
-      where.id = LessThan(paginatePostDto.where__id_less_than);
-    } else if (paginatePostDto.where__id_more_than) {
+      where.id = LessThan(paginatePostDto.where__id__less_than);
+    } else if (paginatePostDto.where__id__more_than) {
       /**
        * {
        *  id: MoreThan(paginatePostDto.where__id_more_than),
        * }
        */
-      where.id = MoreThan(paginatePostDto.where__id_more_than);
+      where.id = MoreThan(paginatePostDto.where__id__more_than);
     }
 
     const posts = await this.postsRepository.find({
