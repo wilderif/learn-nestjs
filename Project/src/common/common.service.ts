@@ -60,13 +60,11 @@ export class CommonService {
   ) {
     const findOptions = this.composeFindOptions<T>(basePaginationDto);
 
-    console.log(findOptions);
-
+    console.log("findOptions", findOptions);
     const results = await respository.find({
       ...findOptions,
       // ...overideFindOptions,
     });
-    console.log(results);
 
     // 해당되는 포스트가 0개 이상이면 마지막 포스트를 가져오고
     // 아니면 null을 반환
@@ -195,7 +193,12 @@ export class CommonService {
       // 만약 , 없이 하나의 값만 사용하는 경우 길이가 1
       const values = value.toString().split(",");
 
-      options[field] = FILTER_MAPPER[operator](...values);
+      if (operator === "i_like") {
+        console.log("values", values, `%${values[0]}%`);
+        options[field] = FILTER_MAPPER[operator](`%${values[0]}%`);
+      } else {
+        options[field] = FILTER_MAPPER[operator](...values);
+      }
     } else {
       throw new BadRequestException("where filter key is invalid : " + key);
     }
