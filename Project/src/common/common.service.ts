@@ -8,6 +8,7 @@ import {
 } from "typeorm";
 import { BaseModel } from "./entity/base.entity";
 import { FILTER_MAPPER } from "./const/filter-mapper.const";
+import { HOST, PROTOCOL } from "./const/env.const";
 
 @Injectable()
 export class CommonService {
@@ -46,6 +47,57 @@ export class CommonService {
     path: string,
   ) {
     const findOptions = this.composeFindOptions<T>(basePaginationDto);
+
+    console.log(findOptions);
+
+    const results = await respository.find({
+      ...findOptions,
+      // ...overideFindOptions,
+    });
+    console.log(results);
+
+    // 해당되는 포스트가 0개 이상이면 마지막 포스트를 가져오고
+    // 아니면 null을 반환
+    const lastItem =
+      results.length > 0 && results.length === basePaginationDto.take
+        ? results[results.length - 1]
+        : null;
+
+    const nextUrl = lastItem && new URL(`${PROTOCOL}://${HOST}/${path}`);
+
+    /**
+     * DTO의 키값들을 순회하며
+     * 키값에 해당되는 밸류가 존재하면 param에 그대로 붙여준다.
+     * 단, where__id_more_than 값만 lastItem의 마지막 값으로 넣어준다.
+     */
+    if (nextUrl) {
+      for (const key of Object.keys(basePaginationDto)) {
+        if (basePaginationDto[key]) {
+          if (
+            key !== "where__id__more_than" &&
+            key !== "where__id__less_than"
+          ) {
+            nextUrl.searchParams.append(key, basePaginationDto[key]);
+          }
+        }
+      }
+
+      let key = null;
+
+      if (basePaginationDto.order__createdAt === "ASC") {
+        key = "where__id__more_than";
+      } else {
+        key = "where__id__less_than";
+      }
+      nextUrl.searchParams.append(key, lastItem.id.toString());
+    }
+
+    return {
+      data: results,
+      cursor: { after: lastItem?.id ?? null },
+      count: results.length,
+      next: nextUrl?.toString() ?? null,
+    };
   }
 
   /**
@@ -78,7 +130,7 @@ export class CommonService {
   private composeFindOptions<T extends BaseModel>(
     basePaginationDto: BasePaginationDto,
   ) {
-    let where: FindManyOptions<T> = {};
+    let where: FindOptionsWhere<T> = {};
     let order: FindOptionsOrder<T> = {};
 
     for (const [key, value] of Object.entries(basePaginationDto)) {

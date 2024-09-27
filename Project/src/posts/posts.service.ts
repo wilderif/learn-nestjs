@@ -6,12 +6,14 @@ import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { PaginatePostDto } from "./dto/paginate-post.dto";
 import { HOST, PROTOCOL } from "src/common/const/env.const";
+import { CommonService } from "src/common/common.service";
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(PostsModel)
     private readonly postsRepository: Repository<PostsModel>,
+    private readonly commonService: CommonService,
   ) {}
 
   async getAllPosts() {
@@ -30,113 +32,120 @@ export class PostsService {
   }
 
   async paginatePosts(paginatePostDto: PaginatePostDto) {
-    if (paginatePostDto.page) {
-      return this.pagePaginatePosts(paginatePostDto);
-    } else {
-      return this.cursorPaginatePosts(paginatePostDto);
-    }
+    // if (paginatePostDto.page) {
+    //   return this.pagePaginatePosts(paginatePostDto);
+    // } else {
+    //   return this.cursorPaginatePosts(paginatePostDto);
+    // }
+
+    return this.commonService.paginate(
+      paginatePostDto,
+      this.postsRepository,
+      {},
+      "posts",
+    );
   }
 
-  /**
-   * Response
-   *
-   * data: Data[],
-   * total: 전체 데이터의 개수,
-   */
-  async pagePaginatePosts(paginatePostDto: PaginatePostDto) {
-    const [posts, count] = await this.postsRepository.findAndCount({
-      order: {
-        createAt: paginatePostDto.order__createdAt,
-      },
-      take: paginatePostDto.take,
-      skip: paginatePostDto.take * (paginatePostDto.page - 1),
-    });
+  // /**
+  //  * Response
+  //  *
+  //  * data: Data[],
+  //  * total: 전체 데이터의 개수,
+  //  */
+  // async pagePaginatePosts(paginatePostDto: PaginatePostDto) {
+  //   const [posts, count] = await this.postsRepository.findAndCount({
+  //     order: {
+  //       createdAt: paginatePostDto.order__createdAt,
+  //     },
+  //     take: paginatePostDto.take,
+  //     skip: paginatePostDto.take * (paginatePostDto.page - 1),
+  //   });
 
-    return {
-      data: posts,
-      total: count,
-    };
-  }
+  //   return {
+  //     data: posts,
+  //     total: count,
+  //   };
+  // }
 
-  /**
-   * Response
-   *
-   * data: Data[],
-   * cursor: {
-   *  after: 마지막 data의 ID,
-   * },
-   * count: 응답한 data의 개수,
-   * next: 다음 요청을 할 때 사용할 URL
-   */
-  async cursorPaginatePosts(paginatePostDto: PaginatePostDto) {
-    const where: FindOptionsWhere<PostsModel> = {};
+  // /**
+  //  * Response
+  //  *
+  //  * data: Data[],
+  //  * cursor: {
+  //  *  after: 마지막 data의 ID,
+  //  * },
+  //  * count: 응답한 data의 개수,
+  //  * next: 다음 요청을 할 때 사용할 URL
+  //  */
+  // async cursorPaginatePosts(paginatePostDto: PaginatePostDto) {
+  //   const where: FindOptionsWhere<PostsModel> = {};
 
-    if (paginatePostDto.where__id__less_than) {
-      /**
-       * {
-       *  id: LessThan(paginatePostDto.where__id_less_than),
-       * }
-       */
-      where.id = LessThan(paginatePostDto.where__id__less_than);
-    } else if (paginatePostDto.where__id__more_than) {
-      /**
-       * {
-       *  id: MoreThan(paginatePostDto.where__id_more_than),
-       * }
-       */
-      where.id = MoreThan(paginatePostDto.where__id__more_than);
-    }
+  //   if (paginatePostDto.where__id__less_than) {
+  //     /**
+  //      * {
+  //      *  id: LessThan(paginatePostDto.where__id_less_than),
+  //      * }
+  //      */
+  //     where.id = LessThan(paginatePostDto.where__id__less_than);
+  //   } else if (paginatePostDto.where__id__more_than) {
+  //     /**
+  //      * {
+  //      *  id: MoreThan(paginatePostDto.where__id_more_than),
+  //      * }
+  //      */
+  //     where.id = MoreThan(paginatePostDto.where__id__more_than);
+  //   }
 
-    const posts = await this.postsRepository.find({
-      where,
-      order: {
-        createAt: paginatePostDto.order__createdAt,
-      },
-      take: paginatePostDto.take,
-    });
+  //   const posts = await this.postsRepository.find({
+  //     where,
+  //     order: {
+  //       createdAt: paginatePostDto.order__createdAt,
+  //     },
+  //     take: paginatePostDto.take,
+  //   });
 
-    // 해당되는 포스트가 0개 이상이면 마지막 포스트를 가져오고
-    // 아니면 null을 반환
-    const lastItem =
-      posts.length > 0 && posts.length === paginatePostDto.take
-        ? posts[posts.length - 1]
-        : null;
+  //   // 해당되는 포스트가 0개 이상이면 마지막 포스트를 가져오고
+  //   // 아니면 null을 반환
+  //   const lastItem =
+  //     posts.length > 0 && posts.length === paginatePostDto.take
+  //       ? posts[posts.length - 1]
+  //       : null;
 
-    const nextUrl = lastItem && new URL(`${PROTOCOL}://${HOST}/posts`);
+  //   const nextUrl = lastItem && new URL(`${PROTOCOL}://${HOST}/posts`);
 
-    /**
-     * DTO의 키값들을 순회하며
-     * 키값에 해당되는 밸류가 존재하면 param에 그대로 붙여준다.
-     * 단, where__id_more_than 값만 lastItem의 마지막 값으로 넣어준다.
-     */
-    if (nextUrl) {
-      for (const key of Object.keys(paginatePostDto)) {
-        if (paginatePostDto[key]) {
-          if (key !== "where__id_more_than" && key !== "where__id_less_than") {
-            nextUrl.searchParams.append(key, paginatePostDto[key]);
-          }
-        }
-      }
+  //   /**
+  //    * DTO의 키값들을 순회하며
+  //    * 키값에 해당되는 밸류가 존재하면 param에 그대로 붙여준다.
+  //    * 단, where__id_more_than 값만 lastItem의 마지막 값으로 넣어준다.
+  //    */
+  //   if (nextUrl) {
+  //     for (const key of Object.keys(paginatePostDto)) {
+  //       if (paginatePostDto[key]) {
+  //         if (key !== "where__id_more_than" && key !== "where__id_less_than") {
+  //           nextUrl.searchParams.append(key, paginatePostDto[key]);
+  //         }
+  //       }
+  //     }
 
-      let key = null;
+  //     let key = null;
 
-      if (paginatePostDto.order__createdAt === "ASC") {
-        key = "where__id_more_than";
-      } else {
-        key = "where__id_less_than";
-      }
-      nextUrl.searchParams.append(key, lastItem.id.toString());
-    }
+  //     if (paginatePostDto.order__createdAt === "ASC") {
+  //       key = "where__id_more_than";
+  //     } else {
+  //       key = "where__id_less_than";
+  //     }
+  //     nextUrl.searchParams.append(key, lastItem.id.toString());
+  //   }
 
-    return {
-      data: posts,
-      cursor: {
-        after: lastItem?.id ?? null,
-      },
-      count: posts.length,
-      next: nextUrl?.toString() ?? null,
-    };
-  }
+  //   return {
+  //     data: posts,
+  //     cursor: {
+  //       after: lastItem?.id ?? null,
+  //     },
+  //     count: posts.length,
+  //     next: nextUrl?.toString() ?? null,
+  //   };
+  // }
 
   async getPostById(postId: number) {
     const post = await this.postsRepository.findOne({
