@@ -44,7 +44,9 @@ export class CommonService {
     respository: Repository<T>,
     overideFindOptions: FindManyOptions<T> = {},
     path: string,
-  ) {}
+  ) {
+    const findOptions = this.composeFindOptions<T>(basePaginationDto);
+  }
 
   /**
    * DTO의 구조
@@ -83,12 +85,12 @@ export class CommonService {
       if (key.startsWith("where")) {
         where = {
           ...where,
-          ...this.parseWhereFilter<T>(key, value),
+          ...this.parseOptions<T>(key, value),
         };
       } else if (key.startsWith("order")) {
         order = {
           ...order,
-          ...this.parseOrderFilter<T>(key, value),
+          ...this.parseOptions<T>(key, value),
         };
       }
     }
@@ -103,11 +105,11 @@ export class CommonService {
     };
   }
 
-  private parseWhereFilter<T extends BaseModel>(
+  private parseOptions<T extends BaseModel>(
     key: string,
     value: any,
-  ): FindOptionsWhere<T> {
-    const options: FindOptionsWhere<T> = {};
+  ): FindOptionsWhere<T> | FindOptionsOrder<T> {
+    const options: FindOptionsWhere<T> | FindOptionsOrder<T> = {};
 
     const splitKey = key.split("__");
     if (splitKey.length === 2) {
@@ -137,8 +139,20 @@ export class CommonService {
     return options;
   }
 
-  private parseOrderFilter<T extends BaseModel>(
-    key: string,
-    value: any,
-  ): FindOptionsOrder<T> {}
+  // private parseOrderFilter<T extends BaseModel>(
+  //   key: string,
+  //   value: any,
+  // ): FindOptionsOrder<T> {
+  //   const options: FindOptionsOrder<T> = {};
+
+  //   const splitKey = key.split("__");
+  //   if (splitKey.length === 2) {
+  //     const [_, field] = splitKey;
+  //     options[field] = value;
+  //   } else {
+  //     throw new BadRequestException("order filter key is invalid : " + key);
+  //   }
+
+  //   return options;
+  // }
 }
