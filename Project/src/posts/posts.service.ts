@@ -5,7 +5,6 @@ import { PostsModel } from "./entities/posts.entity";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { PaginatePostDto } from "./dto/paginate-post.dto";
-import { HOST, PROTOCOL } from "src/common/const/env.const";
 import { CommonService } from "src/common/common.service";
 
 @Injectable()
@@ -41,7 +40,9 @@ export class PostsService {
     return this.commonService.paginate(
       paginatePostDto,
       this.postsRepository,
-      {},
+      {
+        relations: ["author"],
+      },
       "posts",
     );
   }
@@ -111,7 +112,10 @@ export class PostsService {
   //       ? posts[posts.length - 1]
   //       : null;
 
-  //   const nextUrl = lastItem && new URL(`${PROTOCOL}://${HOST}/posts`);
+  //   protocol = this.configService.get<string>(ENV_PROTOCOL_KEY);
+  //   host = this.configService.get<string>(ENV_HOST_KEY);
+
+  //   nextUrl = lastItem && new URL(`${protocol}://${host}/posts`);
 
   //   /**
   //    * DTO의 키값들을 순회하며

@@ -10,6 +10,13 @@ import { UsersModel } from "./users/entities/users.entity";
 import { AuthModule } from "./auth/auth.module";
 import { CommonModule } from "./common/common.module";
 import { APP_INTERCEPTOR } from "@nestjs/core";
+import {
+  ENV_DB_DATABASE_KEY,
+  ENV_DB_HOST_KEY,
+  ENV_DB_PASSWORD_KEY,
+  ENV_DB_PORT_KEY,
+  ENV_DB_USERNAME_KEY,
+} from "./common/const/env-keys.const";
 
 @Module({
   imports: [
@@ -21,11 +28,11 @@ import { APP_INTERCEPTOR } from "@nestjs/core";
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: "postgres",
-        host: "127.0.0.1",
-        port: 5432,
-        username: configService.get("POSTGRES_USER"),
-        password: configService.get("POSTGRES_PASSWORD"),
-        database: configService.get("POSTGRES_DB"),
+        host: configService.get<string>(ENV_DB_HOST_KEY),
+        port: parseInt(configService.get<string>(ENV_DB_PORT_KEY)),
+        username: configService.get<string>(ENV_DB_USERNAME_KEY),
+        password: configService.get<string>(ENV_DB_PASSWORD_KEY),
+        database: configService.get<string>(ENV_DB_DATABASE_KEY),
         entities: [PostsModel, UsersModel],
         synchronize: true,
       }),

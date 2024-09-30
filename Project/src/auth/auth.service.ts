@@ -1,16 +1,21 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService, TokenExpiredError } from "@nestjs/jwt";
 import { UsersModel } from "src/users/entities/users.entity";
-import { HASH_ROUNDS, JWT_SECRET } from "./const/auth.const";
 import { UsersService } from "src/users/users.service";
 import * as bcrypt from "bcrypt";
 import { RegisterUserDto } from "./dto/register-user.dto";
+import { ConfigService } from "@nestjs/config";
+import {
+  ENV_HASH_ROUNDS_KEY,
+  ENV_JWT_SECRET_KEY,
+} from "src/common/const/env-keys.const";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -73,7 +78,7 @@ export class AuthService {
   verifyToken(token: string) {
     try {
       return this.jwtService.verify(token, {
-        secret: JWT_SECRET,
+        secret: this.configService.get<string>(ENV_JWT_SECRET_KEY),
       });
     } catch (error) {
       if (error instanceof TokenExpiredError) {
@@ -86,7 +91,7 @@ export class AuthService {
 
   rotateToken(token: string, isRefreshToken: boolean) {
     const decoded = this.jwtService.verify(token, {
-      secret: JWT_SECRET,
+      secret: this.configService.get<string>(ENV_JWT_SECRET_KEY),
     });
 
     // access token으로는 새로운 token 발급 받을 수 없다.
@@ -135,7 +140,7 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload, {
-      secret: JWT_SECRET,
+      secret: this.configService.get<string>(ENV_JWT_SECRET_KEY),
       // access token은 10분, refresh token은 1시간
       expiresIn: isRefreshToken ? 7200 : 3600,
     });
@@ -179,7 +184,11 @@ export class AuthService {
   }
 
   async registerWithEmail(userDto: RegisterUserDto) {
-    const hashedPassword = await bcrypt.hash(userDto.password, HASH_ROUNDS);
+    const hashedPassword = await bcrypt.hash(
+      userDto.password,
+      parseInt(this.configService.get<string>(ENV_HASH_ROUNDS_KEY)),
+      // this.configService.get<number>(ENV_HASH_ROUNDS_KEY),
+    );
 
     // console.log(userDto);
 
