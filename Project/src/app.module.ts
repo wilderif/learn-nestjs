@@ -17,6 +17,8 @@ import {
   ENV_DB_PORT_KEY,
   ENV_DB_USERNAME_KEY,
 } from "./common/const/env-keys.const";
+import { ServeStaticModule } from "@nestjs/serve-static";
+import { PUBLIC_DIRECTORY_PATH } from "./common/const/path.const";
 
 @Module({
   imports: [
@@ -36,6 +38,12 @@ import {
         entities: [PostsModel, UsersModel],
         synchronize: true,
       }),
+    }),
+    ServeStaticModule.forRoot({
+      // serveRoot를 활용하여
+      // http://localhost:3000/xxx.png -> http://localhost:3000/public/xxx.png
+      rootPath: PUBLIC_DIRECTORY_PATH,
+      serveRoot: "/public",
     }),
     PostsModule,
     UsersModule,
