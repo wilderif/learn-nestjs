@@ -63,6 +63,7 @@ export class PostsController {
     // @Body("isPublic", new DefaultValuePipe(true)) isPublick: boolean,
   ) {
     // console.log(createPostDto);
+    console.log(file);
     return this.postsService.createPost(userId, createPostDto, file?.filename);
   }
 

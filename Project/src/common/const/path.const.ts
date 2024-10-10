@@ -9,15 +9,18 @@ export const PUBLIC_DIRECTORY_NAME = "public";
 // 포스트 이미지들을 저장하는 폴더 이름
 export const POSTS_DIRECTORY_NAME = "posts";
 
+// 임시 폴더 이름
+export const TEMP_DIRECTORY_NAME = "temp";
+
 // 실제 공개 폴더의 절대 경로
-// /{프로젝트의 위치}/public
+// /{프로젝트의 경로}/public
 export const PUBLIC_DIRECTORY_PATH = join(
   PROJECT_ROOT_PATH,
   PUBLIC_DIRECTORY_NAME,
 );
 
 // 포스트 이미지들을 저장하는 폴더의 절대 경로
-// /{프로젝트의 위치}/public/posts
+// /{프로젝트의 경로}/public/posts
 export const POST_IMAGE_PATH = join(
   PUBLIC_DIRECTORY_PATH,
   POSTS_DIRECTORY_NAME,
@@ -27,4 +30,11 @@ export const POST_IMAGE_PATH = join(
 export const POST_PUBLIC_IMAGE_PATH = join(
   PUBLIC_DIRECTORY_NAME,
   POSTS_DIRECTORY_NAME,
+);
+
+// 임시 파일들을 저장할 폴더
+// /{프로젝트의 경로}/public/temp
+export const TEMP_DIRECTORY_PATH = join(
+  PUBLIC_DIRECTORY_PATH,
+  TEMP_DIRECTORY_NAME,
 );
