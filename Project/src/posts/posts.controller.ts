@@ -55,16 +55,13 @@ export class PostsController {
   //    Post를 생성한다.
   @Post()
   @UseGuards(AccessTokenGuard)
-  @UseInterceptors(FileInterceptor("image"))
   postPosts(
     @User("id") userId: number,
     @Body() createPostDto: CreatePostDto,
-    @UploadedFile() file?: Express.Multer.File,
     // @Body("isPublic", new DefaultValuePipe(true)) isPublick: boolean,
   ) {
     // console.log(createPostDto);
-    console.log(file);
-    return this.postsService.createPost(userId, createPostDto, file?.filename);
+    return this.postsService.createPost(userId, createPostDto);
   }
 
   // 4) PUT /posts/:id

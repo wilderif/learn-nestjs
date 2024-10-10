@@ -26,6 +26,8 @@ import { UsersModule } from "src/users/users.module";
         // xxx.png -> .png
         const ext = extname(file.originalname);
 
+        console.log("In Multer");
+
         if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png") {
           return cb(
             new BadRequestException("Only jpg, jpeg, png files are allowed"),
