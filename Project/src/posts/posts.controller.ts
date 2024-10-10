@@ -55,12 +55,14 @@ export class PostsController {
   //    Post를 생성한다.
   @Post()
   @UseGuards(AccessTokenGuard)
-  postPosts(
+  async postPosts(
     @User("id") userId: number,
     @Body() createPostDto: CreatePostDto,
     // @Body("isPublic", new DefaultValuePipe(true)) isPublick: boolean,
   ) {
     // console.log(createPostDto);
+    await this.postsService.createPostIamge(createPostDto);
+
     return this.postsService.createPost(userId, createPostDto);
   }
 

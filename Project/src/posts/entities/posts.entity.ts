@@ -21,7 +21,8 @@ export class PostsModel extends BaseModel {
   @Column({
     nullable: true,
   })
-  // @Transform(({ value }) => value && `/${join(POST_PUBLIC_IMAGE_PATH, value)}`)
+  // Transform은 응답을 위한 dto 생성하여 옮기는게 좋음?
+  @Transform(({ value }) => value && `/${join(POST_PUBLIC_IMAGE_PATH, value)}`)
   image?: string;
 
   @Column()
