@@ -222,7 +222,7 @@ export class PostsService {
 
   getRepository(queryRunner?: QueryRunner) {
     return queryRunner
-      ? queryRunner.manager.getRepository(PostsModel)
+      ? queryRunner.manager.getRepository<PostsModel>(PostsModel)
       : this.postsRepository;
   }
 
@@ -231,7 +231,12 @@ export class PostsService {
     postDto: CreatePostDto,
     queryRunner?: QueryRunner,
   ) {
-    const post = this.postsRepository.create({
+    // 1) create -> 저장할 객체를 생성한다.
+    // 2) save -> 객체를 저장한다.
+
+    const repository = this.getRepository(queryRunner);
+
+    const post = repository.create({
       author: {
         id: authorId,
       },
@@ -244,7 +249,7 @@ export class PostsService {
     // console.log(postDto);
     // console.log(post);
 
-    const newPost = await this.postsRepository.save(post);
+    const newPost = await repository.save(post);
 
     return newPost;
   }
