@@ -17,18 +17,22 @@ import {
   TEMP_DIRECTORY_PATH,
 } from "src/common/const/path.const";
 import { promises } from "fs";
+import { CreatePostImageDto } from "./image/dto/create-image.dto";
+import { ImageModel } from "src/common/entity/image.entity";
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(PostsModel)
     private readonly postsRepository: Repository<PostsModel>,
+    @InjectRepository(ImageModel)
+    private readonly imageRepository: Repository<ImageModel>,
     private readonly commonService: CommonService,
   ) {}
 
   async getAllPosts() {
     return this.postsRepository.find({
-      relations: ["author"],
+      relations: ["author", "images"],
     });
   }
 
@@ -37,6 +41,7 @@ export class PostsService {
       await this.createPost(userId, {
         title: `dummy post ${i}`,
         content: `dummy content ${i}`,
+        images: [],
       });
     }
   }
@@ -52,7 +57,7 @@ export class PostsService {
       paginatePostDto,
       this.postsRepository,
       {
-        relations: ["author"],
+        relations: ["author", "images"],
       },
       "posts",
     );
@@ -167,7 +172,7 @@ export class PostsService {
       where: {
         id: postId,
       },
-      relations: ["author"],
+      relations: ["author", "images"],
     });
 
     if (!post) {
@@ -177,9 +182,9 @@ export class PostsService {
     return post;
   }
 
-  async createPostIamge(dto: CreatePostDto) {
+  async createPostIamge(dto: CreatePostImageDto) {
     // dto의 image 이름을 기반으로 파일의 경로를 생성한다.
-    const tempFilePath = join(TEMP_DIRECTORY_PATH, dto.image);
+    const tempFilePath = join(TEMP_DIRECTORY_PATH, dto.path);
 
     try {
       // 파일이 존재하는지 확인
@@ -197,9 +202,15 @@ export class PostsService {
     // {프로젝트 경로}/public/posts/xxx.png
     const newPath = join(POST_IMAGE_PATH, fileName);
 
+    // DB에 저장
+    const result = await this.imageRepository.save({
+      ...dto,
+    });
+
+    // 파일을 이동
     await promises.rename(tempFilePath, newPath);
 
-    return true;
+    return result;
   }
 
   async createPost(authorId: number, postDto: CreatePostDto) {
@@ -208,6 +219,7 @@ export class PostsService {
         id: authorId,
       },
       ...postDto,
+      images: [],
       likeCount: 0,
       commentCount: 0,
     });

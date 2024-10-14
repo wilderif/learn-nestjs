@@ -23,6 +23,7 @@ import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { PaginatePostDto } from "./dto/paginate-post.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { ImageModelType } from "src/common/entity/image.entity";
 
 @Controller("posts")
 export class PostsController {
@@ -72,10 +73,18 @@ export class PostsController {
     @Body() createPostDto: CreatePostDto,
     // @Body("isPublic", new DefaultValuePipe(true)) isPublick: boolean,
   ) {
-    // console.log(createPostDto);
-    await this.postsService.createPostIamge(createPostDto);
+    const post = await this.postsService.createPost(userId, createPostDto);
 
-    return this.postsService.createPost(userId, createPostDto);
+    for (let i = 0; i < createPostDto.images.length; i++) {
+      await this.postsService.createPostIamge({
+        post,
+        order: i,
+        path: createPostDto.images[i],
+        type: ImageModelType.POST_IMAGE,
+      });
+    }
+
+    return this.postsService.getPostById(post.id);
   }
 
   // 4) PUT /posts/:id
