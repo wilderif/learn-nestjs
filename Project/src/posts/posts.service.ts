@@ -19,6 +19,7 @@ import {
 import { promises } from "fs";
 import { CreatePostImageDto } from "./image/dto/create-image.dto";
 import { ImageModel } from "src/common/entity/image.entity";
+import { DEFAULT_POST_FIND_OPTIONS } from "./const/default-post-find-options.const";
 
 @Injectable()
 export class PostsService {
@@ -32,7 +33,7 @@ export class PostsService {
 
   async getAllPosts() {
     return this.postsRepository.find({
-      relations: ["author", "images"],
+      ...DEFAULT_POST_FIND_OPTIONS,
     });
   }
 
@@ -57,7 +58,7 @@ export class PostsService {
       paginatePostDto,
       this.postsRepository,
       {
-        relations: ["author", "images"],
+        ...DEFAULT_POST_FIND_OPTIONS,
       },
       "posts",
     );
@@ -172,7 +173,7 @@ export class PostsService {
       where: {
         id: postId,
       },
-      relations: ["author", "images"],
+      ...DEFAULT_POST_FIND_OPTIONS,
     });
 
     if (!post) {
