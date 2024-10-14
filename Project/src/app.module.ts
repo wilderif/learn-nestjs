@@ -19,6 +19,7 @@ import {
 } from "./common/const/env-keys.const";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { PUBLIC_DIRECTORY_PATH } from "./common/const/path.const";
+import { ImageModel } from "./common/entity/image.entity";
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { PUBLIC_DIRECTORY_PATH } from "./common/const/path.const";
         username: configService.get<string>(ENV_DB_USERNAME_KEY),
         password: configService.get<string>(ENV_DB_PASSWORD_KEY),
         database: configService.get<string>(ENV_DB_DATABASE_KEY),
-        entities: [PostsModel, UsersModel],
+        entities: [PostsModel, UsersModel, ImageModel],
         synchronize: true,
       }),
     }),

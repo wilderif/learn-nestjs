@@ -53,6 +53,18 @@ export class PostsController {
 
   // 3) POST /posts
   //    Post를 생성한다.
+  // A Model, B Model
+  // Post API -> A Model을 저장하고, B Model을 저장한다.
+  // await repository.save(A Model);
+  // await repository.save(B Model);
+  //
+  // 만약에 A Model을 저장하다가 실패하면, B Model을 저장하면 안 될경우.
+  // Transaction
+  // all or nothing
+  //
+  // start - 시작
+  // commit - 저장
+  // rollback - 원상복구
   @Post()
   @UseGuards(AccessTokenGuard)
   async postPosts(
