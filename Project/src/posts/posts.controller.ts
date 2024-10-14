@@ -15,6 +15,7 @@ import {
   ClassSerializerInterceptor,
   Query,
   UploadedFile,
+  InternalServerErrorException,
 } from "@nestjs/common";
 import { PostsService } from "./posts.service";
 import { AccessTokenGuard } from "src/auth/guard/bearer-token.guard";
@@ -25,11 +26,13 @@ import { PaginatePostDto } from "./dto/paginate-post.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ImageModelType } from "src/common/entity/image.entity";
 import { DataSource } from "typeorm";
+import { PostsImagesService } from "./image/images.service";
 
 @Controller("posts")
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
+    private readonly postsImagesService: PostsImagesService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -90,15 +93,22 @@ export class PostsController {
 
     // 로직 실행
     try {
-      const post = await this.postsService.createPost(userId, createPostDto);
+      const post = await this.postsService.createPost(
+        userId,
+        createPostDto,
+        queryRunner,
+      );
 
       for (let i = 0; i < createPostDto.images.length; i++) {
-        await this.postsService.createPostImage({
-          post,
-          order: i,
-          path: createPostDto.images[i],
-          type: ImageModelType.POST_IMAGE,
-        });
+        await this.postsImagesService.createPostImage(
+          {
+            post,
+            order: i,
+            path: createPostDto.images[i],
+            type: ImageModelType.POST_IMAGE,
+          },
+          queryRunner,
+        );
       }
 
       await queryRunner.commitTransaction();
@@ -111,6 +121,8 @@ export class PostsController {
       // transaction을 rollback한다.
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
+
+      throw new InternalServerErrorException("Error while creating post");
     }
   }
 
