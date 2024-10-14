@@ -27,6 +27,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { ImageModelType } from "src/common/entity/image.entity";
 import { DataSource } from "typeorm";
 import { PostsImagesService } from "./image/images.service";
+import { LogInterceptor } from "src/common/interceptor/log.interceptor";
 
 @Controller("posts")
 export class PostsController {
@@ -48,6 +49,7 @@ export class PostsController {
   //    모든 post를 다 가져온다.
   @Get()
   // @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(LogInterceptor)
   getPosts(@Query() query: PaginatePostDto) {
     return this.postsService.paginatePosts(query);
   }
@@ -115,7 +117,7 @@ export class PostsController {
       await queryRunner.release();
 
       return this.postsService.getPostById(post.id);
-    } catch (e) {
+    } catch (error) {
       // 어떤 에러든 에러가 발생하면,
       // transaction을 종료하고 원래 상태로 되돌린다.
       // transaction을 rollback한다.

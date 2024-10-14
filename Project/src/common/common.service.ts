@@ -63,7 +63,6 @@ export class CommonService {
   ) {
     const findOptions = this.composeFindOptions<T>(basePaginationDto);
 
-    console.log("findOptions", findOptions);
     const results = await respository.find({
       ...findOptions,
       ...overideFindOptions,
@@ -200,7 +199,6 @@ export class CommonService {
       const values = value.toString().split(",");
 
       if (operator === "i_like") {
-        console.log("values", values, `%${values[0]}%`);
         options[field] = FILTER_MAPPER[operator](`%${values[0]}%`);
       } else {
         options[field] = FILTER_MAPPER[operator](...values);
