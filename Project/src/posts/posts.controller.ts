@@ -24,10 +24,14 @@ import { UpdatePostDto } from "./dto/update-post.dto";
 import { PaginatePostDto } from "./dto/paginate-post.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ImageModelType } from "src/common/entity/image.entity";
+import { DataSource } from "typeorm";
 
 @Controller("posts")
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(
+    private readonly postsService: PostsService,
+    private readonly dataSource: DataSource,
+  ) {}
 
   // POST /posts/dummy
   @Post("dummy")
@@ -73,18 +77,41 @@ export class PostsController {
     @Body() createPostDto: CreatePostDto,
     // @Body("isPublic", new DefaultValuePipe(true)) isPublick: boolean,
   ) {
-    const post = await this.postsService.createPost(userId, createPostDto);
+    // transaction과 관련된 모든 쿼리를 담당할 queryRunner를 생성한다.
+    const queryRunner = this.dataSource.createQueryRunner();
 
-    for (let i = 0; i < createPostDto.images.length; i++) {
-      await this.postsService.createPostIamge({
-        post,
-        order: i,
-        path: createPostDto.images[i],
-        type: ImageModelType.POST_IMAGE,
-      });
+    // queryRunner에 연결한다.
+    await queryRunner.connect();
+
+    // transaction을 시작한다.
+    // 이 시점부터 같은 queryRunner를 사용하면,
+    // transaction 안에서 database action을 실행할 수 있다.
+    await queryRunner.startTransaction();
+
+    // 로직 실행
+    try {
+      const post = await this.postsService.createPost(userId, createPostDto);
+
+      for (let i = 0; i < createPostDto.images.length; i++) {
+        await this.postsService.createPostImage({
+          post,
+          order: i,
+          path: createPostDto.images[i],
+          type: ImageModelType.POST_IMAGE,
+        });
+      }
+
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      return this.postsService.getPostById(post.id);
+    } catch (e) {
+      // 어떤 에러든 에러가 발생하면,
+      // transaction을 종료하고 원래 상태로 되돌린다.
+      // transaction을 rollback한다.
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
     }
-
-    return this.postsService.getPostById(post.id);
   }
 
   // 4) PUT /posts/:id

@@ -4,7 +4,13 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { FindOptionsWhere, LessThan, MoreThan, Repository } from "typeorm";
+import {
+  FindOptionsWhere,
+  LessThan,
+  MoreThan,
+  QueryRunner,
+  Repository,
+} from "typeorm";
 import { PostsModel } from "./entities/posts.entity";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
@@ -183,7 +189,7 @@ export class PostsService {
     return post;
   }
 
-  async createPostIamge(dto: CreatePostImageDto) {
+  async createPostImage(dto: CreatePostImageDto) {
     // dto의 image 이름을 기반으로 파일의 경로를 생성한다.
     const tempFilePath = join(TEMP_DIRECTORY_PATH, dto.path);
 
@@ -214,7 +220,17 @@ export class PostsService {
     return result;
   }
 
-  async createPost(authorId: number, postDto: CreatePostDto) {
+  getRepository(queryRunner?: QueryRunner) {
+    return queryRunner
+      ? queryRunner.manager.getRepository(PostsModel)
+      : this.postsRepository;
+  }
+
+  async createPost(
+    authorId: number,
+    postDto: CreatePostDto,
+    queryRunner?: QueryRunner,
+  ) {
     const post = this.postsRepository.create({
       author: {
         id: authorId,
