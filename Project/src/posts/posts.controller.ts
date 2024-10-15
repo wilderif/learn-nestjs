@@ -16,6 +16,7 @@ import {
   Query,
   UploadedFile,
   InternalServerErrorException,
+  UseFilters,
 } from "@nestjs/common";
 import { PostsService } from "./posts.service";
 import { AccessTokenGuard } from "src/auth/guard/bearer-token.guard";
@@ -30,6 +31,7 @@ import { PostsImagesService } from "./image/images.service";
 import { LogInterceptor } from "src/common/interceptor/log.interceptor";
 import { TransactionInterceptor } from "src/common/interceptor/transaction.interceptor";
 import { QueryRunnerDecorator } from "src/common/decorator/query-runner.decorator";
+import { HttpExceptionFilter } from "src/common/exception-filter/http.exception-filter";
 
 @Controller("posts")
 export class PostsController {
@@ -51,6 +53,7 @@ export class PostsController {
   @Get()
   // @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(LogInterceptor)
+  @UseFilters(HttpExceptionFilter)
   getPosts(@Query() query: PaginatePostDto) {
     return this.postsService.paginatePosts(query);
   }
@@ -79,6 +82,7 @@ export class PostsController {
   @Post()
   @UseGuards(AccessTokenGuard)
   @UseInterceptors(TransactionInterceptor)
+  @UseFilters(HttpExceptionFilter)
   async postPosts(
     @User("id") userId: number,
     @Body() createPostDto: CreatePostDto,
