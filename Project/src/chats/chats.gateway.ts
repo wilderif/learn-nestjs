@@ -39,8 +39,13 @@ export class ChatsGateway implements OnGatewayConnection {
   ) {
     console.log(message);
 
-    this.server
-      .in(message.chatId.toString())
+    // 이 방법으로 하면 나에게도 메세지가 전달 됨
+    // this.server
+    //   .in(message.chatId.toString())
+    //   .emit("receive_message", message.message);
+
+    socket
+      .to(message.chatId.toString())
       .emit("receive_message", message.message);
   }
 }
