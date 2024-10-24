@@ -7,6 +7,7 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { CreateChatDto } from "./dto/create-chat.dto";
 
 @WebSocketGateway({
   // ws://localhost:3000/chats
@@ -19,6 +20,12 @@ export class ChatsGateway implements OnGatewayConnection {
   handleConnection(socket: Socket) {
     console.log(`on connection: ${socket.id}`);
   }
+
+  @SubscribeMessage("create_chat")
+  createChat(
+    @MessageBody() data: CreateChatDto,
+    @ConnectedSocket() socket: Socket,
+  ) {}
 
   @SubscribeMessage("enter_chat")
   enterChat(
