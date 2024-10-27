@@ -91,6 +91,8 @@ export class ChatsGateway implements OnGatewayConnection {
 
     const message = await this.messagesService.createMessage(createMessagesDto);
 
-    socket.to(message.id.toString()).emit("receive_message", message.message);
+    socket
+      .to(message.chat.id.toString())
+      .emit("receive_message", message.message);
   }
 }
